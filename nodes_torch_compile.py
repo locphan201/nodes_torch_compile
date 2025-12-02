@@ -23,18 +23,28 @@ class TorchCompileModel(io.ComfyNode):
     def execute(cls, model, backend) -> io.NodeOutput:
         m = model.clone()
         compile_kwargs = {
-            "mode": None,
+            "backend": "inductor",
+            "mode": "max-autotune",
             "fullgraph": True,
-            "dynamic": False,
+            "dynamic": False,  # MUST be False for consistent latents
             "options": {
+                # Core optimizations
                 "max_autotune": True,
                 "max_autotune_gemm": True,
+                "max_autotune_gemm_backends": "TRITON",  # Removed CUTLASS to eliminate warnings
+                
+                # Memory management for 18GB models
                 "triton.cudagraphs": False,
                 "shape_padding": True,
                 "epilogue_fusion": True,
-                "max_autotune_gemm_backends": "TRITON,CUTLASS",
+                
+                # Caching for faster subsequent compiles
                 "fx_graph_cache": True,
                 "autotune_local_cache": True,
+                
+                # Additional performance
+                "coordinate_descent_tuning": True,
+                "coordinate_descent_check_all_directions": True,
             }
         }
         set_torch_compile_wrapper(model=m, backend=backend, **compile_kwargs)
