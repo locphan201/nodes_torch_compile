@@ -37,7 +37,7 @@ class TorchCompileModel(io.ComfyNode):
                 "autotune_local_cache": True,
             }
         }
-        set_torch_compile_wrapper(model=m, backend=backend **compile_kwargs)
+        set_torch_compile_wrapper(model=m, backend=backend, **compile_kwargs)
         return io.NodeOutput(m)
 
 
