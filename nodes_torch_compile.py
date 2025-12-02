@@ -23,7 +23,6 @@ class TorchCompileModel(io.ComfyNode):
     def execute(cls, model, backend) -> io.NodeOutput:
         m = model.clone()
         compile_kwargs = {
-            "backend": "inductor",
             "mode": "reduce-overhead",
             "fullgraph": True,
             "dynamic": False,
